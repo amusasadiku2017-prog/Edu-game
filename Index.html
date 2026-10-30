@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduQuiz - Learn & Play</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #333;
+    }
+
+    .app-container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f0f0ff;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #667eea;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .question-card {
+      background: #f9f9ff;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 2px solid #e0e0ff;
+    }
+
+    .question-number {
+      color: #667eea;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option-btn {
+      padding: 15px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: #667eea;
+      background: #f0f0ff;
+    }
+
+    .option-btn.correct {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+
+    .option-btn.wrong {
+      background: #f44336;
+      color: white;
+      border-color: #f44336;
+    }
+
+    .option-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .next-btn, .restart-btn {
+      width: 100%;
+      padding: 15px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+
+    .next-btn:hover, .restart-btn:hover {
+      background: #764ba2;
+      transform: translateY(-2px);
+    }
+
+    .result-screen {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .result-score {
+      font-size: 60px;
+      color: #667eea;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .result-text {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .emoji {
+      font-size: 80px;
+      margin: 20px 0;
+    }
+
+    .subject-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .subject-btn {
+      padding: 20px;
+      background: #f0f0ff;
+      border: 2px solid #667eea;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .subject-btn:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .feedback {
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .feedback.correct-feedback {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .feedback.wrong-feedback {
+      background: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Subject Selection Screen -->
+    <div id="subjectScreen">
+      <div class="header">
+        <h1>📚 EduQuiz</h1>
+        <p>Choose a subject and test your knowledge!</p>
+      </div>
+      <div class="subject-selector">
+        <button class="subject-btn" onclick="startQuiz('maths')">🔢 Maths</button>
+        <button class="subject-btn" onclick="startQuiz('english')">📖 English</button>
+        <button class="subject-btn" onclick="startQuiz('science')">🔬 Science</button>
+        <button class="subject-btn" onclick="startQuiz('general')">🌍 General</button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="hidden">
+      <div class="score-bar">
+        <span>Score: <span id="score">0</span></span>
+        <span>Question: <span id="currentQ">1</span>/10</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-number" id="qNumber">Question 1</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="options"></div>
+      </div>
+      
+      <div id="feedback" class="feedback hidden"></div>
+      <button class="next-btn hidden" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden">
+      <div class="result-screen">
+        <div class="emoji" id="resultEmoji">🎉</div>
+        <h2>Quiz Complete!</h2>
+        <div class="result-score" id="finalScore">0/10</div>
+        <div class="result-text" id="resultText"></div>
+        <button class="restart-btn" onclick="showSubjectScreen()">Play Again</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const quizData = {
+      maths: [
+        {q: "What is 15 + 27?", a: ["32", "42", "52", "40"], correct: 1},
+        {q: "What is 8 × 7?", a: ["54", "56", "48", "64"], correct: 1},
+        {q: "What is 100 ÷ 4?", a: ["20", "25", "30", "40"], correct: 1},
+        {q: "What is 9² (9 squared)?", a: ["18", "81", "72", "99"], correct: 1},
+        {q: "What is 50 - 23?", a: ["27", "33", "23", "37"], correct: 0},
+        {q: "What is 6 × 6 + 4?", a: ["40", "36", "44", "32"], correct: 0},
+        {q: "What is 144 ÷ 12?", a: ["10", "12", "14", "16"], correct: 1},
+        {q: "What is 25% of 200?", a: ["25", "50", "75", "100"], correct: 1},
+        {q: "What is 3 + 4 × 2?", a: ["14", "10", "11", "8"], correct: 2},
+        {q: "What is the next number: 2, 4, 8, 16, ?", a: ["20", "24", "32", "18"], correct: 2}
+      ],
+      english: [
+        {q: "What is the synonym of 'Happy'?", a: ["Sad", "Joyful", "Angry", "Tired"], correct: 1},
+        {q: "Which word is a noun?", a: ["Run", "Beautiful", "School", "Quickly"], correct: 2},
+        {q: "What is the plural of 'child'?", a: ["Childs", "Children", "Childes", "Childies"], correct: 1},
+        {q: "Which is a verb?", a: ["Book", "Jump", "Happiness", "Red"], correct: 1},
+        {q: "What is the opposite of 'Brave'?", a: ["Strong", "Cowardly", "Fast", "Loud"], correct: 1},
+        {q: "Which sentence is correct?", a: ["She go to school", "She goes to school", "She going to school", "She gone to school"], correct: 1},
+        {q: "What is the past tense of 'eat'?", a: ["Eated", "Ate", "Eaten", "Eating"], correct: 1},
+        {q: "Which word is an adjective?", a: ["Quickly", "Run", "Big", "Sing"], correct: 2},
+        {q: "How many syllables in 'beautiful'?", a: ["2", "3", "4", "1"], correct: 1},
+        {q: "Which is a pronoun?", a: ["Cat", "He", "Blue", "Jump"], correct: 1}
+      ],
+      science: [
+        {q: "What planet is known as the Red Planet?", a: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1},
+        {q: "What is H2O?", a: ["Oxygen", "Salt", "Water", "Hydrogen"], correct: 2},
+        {q: "How many legs does a spider have?", a: ["6", "8", "10", "4"], correct: 1},
+        {q: "What force keeps us on the ground?", a: ["Magnetism", "Friction", "Gravity", "Inertia"], correct: 2},
+        {q: "What do plants need to make food?", a: ["Sunlight", "Darkness", "Sand", "Plastic"], correct: 0},
+        {q: "What is the largest organ of the body?", a: ["Heart", "Liver", "Skin", "Brain"], correct: 2},
+        {q: "Which animal is a mammal?", a: ["Shark", "Dolphin", "Octopus", "Penguin"], correct: 1},
+        {q: "What is the boiling point of water?", a: ["90°C", "100°C", "80°C", "120°C"], correct: 1},
+        {q: "What gas do humans need to breathe?", a: ["Carbon dioxide", "Oxygen", "Nitrogen", "Helium"], correct: 1},
+        {q: "Which is not a living thing?", a: ["Tree", "Dog", "Rock", "Fish"], correct: 2}
+      ],
+      general: [
+        {q: "What is the capital of Nigeria?", a: ["Lagos", "Abuja", "Kano", "Ibadan"], correct: 1},
+        {q: "How many days are in a leap year?", a: ["365", "366", "364", "367"], correct: 1},
+        {q: "What is the largest country in the world?", a: ["USA", "China", "Russia", "Canada"], correct: 2},
+        {q: "How many continents are there?", a: ["5", "6", "7", "8"], correct: 2},
+        {q: "What is the currency of Nigeria?", a: ["Dollar", "Pound", "Naira", "Euro"], correct: 2},
+        {q: "Who wrote the Nigerian National Anthem?", a: ["John Ayodele", "Felicia Adeyoyin", "Benedict Odiase", "Both A and B"], correct: 3},
+        {q: "What is the longest river in Nigeria?", a: ["Niger River", "Benue River", "Ogun River", "Cross River"], correct: 0},
+        {q: "How many states are in Nigeria?", a: ["30", "36", "32", "28"], correct: 1},
+        {q: "What is the main language in Nigeria?", a: ["French", "English", "Spanish", "Arabic"], correct: 1},
+        {q: "What is the smallest planet?", a: ["Mars", "Mercury", "Venus", "Earth"], correct: 1}
+      ]
+    };
+
+    let currentSubject = '';
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedAnswer = null;
+
+    function startQuiz(subject) {
+      currentSubject = subject;
+      currentQuestionIndex = 0;
+      score = 0;
+      document.getElementById('subjectScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const questionData = quizData[currentSubject][currentQuestionIndex];
+      document.getElementById('qNumber').innerText = `Question ${currentQuestionIndex + 1} - ${currentSubject.toUpperCase()}`;
+      document.getElementById('questionText').innerText = questionData.q;
+      document.getElementById('score').innerText = score;
+      document.getElementById('currentQ').innerText = currentQuestionIndex + 1;
+      document.getElementById('progressFill').style.width = ((currentQuestionIndex) / 10 * 100) + '%';
+      document.getElementById('feedback').classList.add('hidden');
+      document.getElementById('nextBtn').classList.add('hidden');
+      
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+      
+      questionData.a.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-btn';
+        button.innerText = `${String.fromCharCode(65 + index)}. ${option}`;
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    function selectAnswer(selectedIndex) {
+      const questionData = quizData[currentSubject][currentQuestionIndex];
+      const options = document.querySelectorAll('.option-btn');
+      const feedback = document.getElementById('feedback');
+      
+      options.forEach(btn => btn.disabled = true);
+      
+      if (selectedIndex === questionData.correct) {
+        options[selectedIndex].classList.add('correct');
+        score++;
+        feedback.innerText = "✅ Correct! Well done!";
+        feedback.className = "feedback correct-feedback";
+      } else {
+        options[selectedIndex].classList.add('wrong');
+        options[questionData.correct].classList.add('correct');
+        feedback.innerText = `❌ Wrong! The correct answer is: ${questionData.a[questionData.correct]}`;
+        feedback.className = "feedback wrong-feedback";
+      }
+      
+      document.getElementById('score').innerText = score;
+      document.getElementById('progressFill').style.width = ((currentQuestionIndex + 1) / 10 * 100) + '%';
+      document.getElementById('nextBtn').classList.remove('hidden');
+      
+      if (currentQuestionIndex === 9) {
+        document.getElementById('nextBtn').innerText = "See Results →";
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < 10) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quizScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+      
+      document.getElementById('finalScore').innerText = `${score}/10`;
+      
+      let emoji, text;
+      if (score >= 9) {
+        emoji = "🏆";
+        text = "Excellent! You're a genius!";
+      } else if (score >= 7) {
+        emoji = "🎉";
+        text = "Great job! Keep it up!";
+      } else if (score >= 5) {
+        emoji = "👍";
+        text = "Good! Practice more to improve!";
+      } else {
+        emoji = "📚";
+        text = "Keep learning! You can do it!";
+      }
+      
+      document.getElementById('resultEmoji').innerText = emoji;
+      document.getElementById('resultText').innerText = text;
+    }
+
+    function showSubjectScreen() {
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('subjectScreen').classList.remove('hidden');
+      document.getElementById('nextBtn').innerText = "Next Question →";
+    }
+  </script>
+
+</body>
+</html>
